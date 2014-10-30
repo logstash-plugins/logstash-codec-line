@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+require 'spec_helper'
 require "logstash/codecs/line"
 require "logstash/event"
 
