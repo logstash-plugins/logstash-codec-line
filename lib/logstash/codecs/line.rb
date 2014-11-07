@@ -14,13 +14,13 @@ class LogStash::Codecs::Line < LogStash::Codecs::Base
   # Set the desired text format for encoding.
   config :format, :validate => :string
 
-  # The character encoding used in this input. Examples include "UTF-8"
-  # and "cp1252"
+  # The character encoding used in this input. Examples include `UTF-8`
+  # and `cp1252`
   #
-  # This setting is useful if your log files are in Latin-1 (aka cp1252)
-  # or in another character set other than UTF-8.
+  # This setting is useful if your log files are in `Latin-1` (aka `cp1252`)
+  # or in another character set other than `UTF-8`.
   #
-  # This only affects "plain" format logs since json is UTF-8 already.
+  # This only affects "plain" format logs since json is `UTF-8` already.
   config :charset, :validate => ::Encoding.name_list, :default => "UTF-8"
 
   public
