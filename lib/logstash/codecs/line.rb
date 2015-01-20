@@ -9,7 +9,6 @@ require "logstash/util/charset"
 # Encoding behavior: Each event will be emitted with a trailing newline.
 class LogStash::Codecs::Line < LogStash::Codecs::Base
   config_name "line"
-  milestone 3
 
   # Set the desired text format for encoding.
   config :format, :validate => :string
