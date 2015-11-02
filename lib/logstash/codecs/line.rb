@@ -23,6 +23,7 @@ class LogStash::Codecs::Line < LogStash::Codecs::Base
   config :charset, :validate => ::Encoding.name_list, :default => "UTF-8"
 
   public
+
   def register
     require "logstash/util/buftok"
     @buffer = FileWatch::BufferedTokenizer.new
@@ -30,28 +31,30 @@ class LogStash::Codecs::Line < LogStash::Codecs::Base
     @converter.logger = @logger
   end
 
-  public
   def decode(data)
     @buffer.extract(data).each do |line|
-      yield LogStash::Event.new("message" => @converter.convert(line))
+      yield eventify(line)
     end
   end # def decode
 
-  public
   def flush(&block)
     remainder = @buffer.flush
     if !remainder.empty?
-      block.call(LogStash::Event.new("message" => @converter.convert(remainder)))
+      block.call(eventify(remainder))
     end
   end
 
-  public
   def encode(event)
-    if event.is_a? LogStash::Event and @format
+    if !@format.nil? && event.is_a?(LogStash::Event)
       @on_event.call(event, event.sprintf(@format) + NL)
     else
       @on_event.call(event, event.to_s + NL)
     end
   end # def encode
 
+  private
+
+  def eventify(str)
+    LogStash::Event.new("message" => @converter.convert(str))
+  end
 end # class LogStash::Codecs::Plain
