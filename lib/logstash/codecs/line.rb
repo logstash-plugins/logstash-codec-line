@@ -22,10 +22,13 @@ class LogStash::Codecs::Line < LogStash::Codecs::Base
   # This only affects "plain" format logs since json is `UTF-8` already.
   config :charset, :validate => ::Encoding.name_list, :default => "UTF-8"
 
+  # Change the delimiter that separates lines
+  config :delimiter, :validate => :string, :default => "\n"
+
   public
   def register
     require "logstash/util/buftok"
-    @buffer = FileWatch::BufferedTokenizer.new
+    @buffer = FileWatch::BufferedTokenizer.new(@delimiter)
     @converter = LogStash::Util::Charset.new(@charset)
     @converter.logger = @logger
   end
@@ -48,9 +51,9 @@ class LogStash::Codecs::Line < LogStash::Codecs::Base
   public
   def encode(event)
     if event.is_a? LogStash::Event and @format
-      @on_event.call(event, event.sprintf(@format) + NL)
+      @on_event.call(event, event.sprintf(@format) + @delimiter)
     else
-      @on_event.call(event, event.to_s + NL)
+      @on_event.call(event, event.to_s + @delimiter)
     end
   end # def encode
 
