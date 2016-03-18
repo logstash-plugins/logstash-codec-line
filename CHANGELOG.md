@@ -1,3 +1,5 @@
+# 2.1.1
+  - New dependency requirements for logstash-core for the 5.0 release
 ## 2.1.0
  - Support the customization of the delimiter through :delimiter option
 
