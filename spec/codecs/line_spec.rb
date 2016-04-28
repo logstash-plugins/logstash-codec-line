@@ -51,7 +51,7 @@ describe LogStash::Codecs::Line do
       subject.decode("hello world\n") do |e|
         decoded = true
         insist { e.is_a?(LogStash::Event) }
-        insist { e["message"] } == "hello world"
+        insist { e.get("message") } == "hello world"
       end
       insist { decoded } == true
     end
@@ -59,7 +59,7 @@ describe LogStash::Codecs::Line do
     it "should return an event from a valid utf-8 string" do
       subject.decode("München\n") do |e|
         insist { e.is_a?(LogStash::Event) }
-        insist { e["message"] } == "München"
+        insist { e.get("message") } == "München"
       end
     end
 
@@ -74,7 +74,7 @@ describe LogStash::Codecs::Line do
         subject.decode(line) { |e| result << e }
         subject.flush { |e| result << e }
         expect(result.size).to eq(1)
-        expect(result[0]["message"]).to eq(line)
+        expect(result[0].get("message")).to eq(line)
       end
 
       it "should break lines by that delimiter" do
@@ -82,9 +82,9 @@ describe LogStash::Codecs::Line do
         subject.decode("line1|line2|line3|") { |e| result << e }
         subject.flush { |e| result << e }
         expect(result.size).to eq(3)
-        expect(result[0]["message"]).to eq("line1")
-        expect(result[1]["message"]).to eq("line2")
-        expect(result[2]["message"]).to eq("line3")
+        expect(result[0].get("message")).to eq("line1")
+        expect(result[1].get("message")).to eq("line2")
+        expect(result[2].get("message")).to eq("line3")
       end
     end
   end
@@ -98,7 +98,7 @@ describe LogStash::Codecs::Line do
       count = 0
       subject.flush do |event|
         count += 1
-        insist { event["message"].encoding } == Encoding::UTF_8
+        insist { event.get("message").encoding } == Encoding::UTF_8
       end
       insist { count } == 1
     end
