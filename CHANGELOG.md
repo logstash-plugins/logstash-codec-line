@@ -1,3 +1,6 @@
+## 3.0.6
+  - Fixed thread safety issue. See https://github.com/logstash-plugins/logstash-codec-line/pull/13
+
 ## 3.0.5
   - Update gemspec summary
 
