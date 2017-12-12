@@ -1,6 +1,7 @@
 # encoding: utf-8
 require "logstash/codecs/base"
 require "logstash/util/charset"
+require "thread"
 
 # Line-oriented text data.
 #
@@ -31,18 +32,18 @@ class LogStash::Codecs::Line < LogStash::Codecs::Base
     @buffer = FileWatch::BufferedTokenizer.new(@delimiter)
     @converter = LogStash::Util::Charset.new(@charset)
     @converter.logger = @logger
+    @buffer_mutex = Mutex.new
   end
 
   public
   def decode(data)
-    @buffer.extract(data).each do |line|
-      yield LogStash::Event.new("message" => @converter.convert(line))
-    end
+    lines = @buffer_mutex.synchronize { @buffer.extract(data) }
+    lines.each { |line| yield LogStash::Event.new("message" => @converter.convert(line)) }
   end # def decode
 
   public
   def flush(&block)
-    remainder = @buffer.flush
+    remainder = @buffer_mutex.synchronize { @buffer.flush }
     if !remainder.empty?
       block.call(LogStash::Event.new("message" => @converter.convert(remainder)))
     end
