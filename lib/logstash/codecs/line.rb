@@ -27,7 +27,6 @@ class LogStash::Codecs::Line < LogStash::Codecs::Base
 
   MESSAGE_FIELD = "message".freeze
 
-  public
   def register
     require "logstash/util/buftok"
     @buffer = FileWatch::BufferedTokenizer.new(@delimiter)
@@ -35,12 +34,10 @@ class LogStash::Codecs::Line < LogStash::Codecs::Base
     @converter.logger = @logger
   end
 
-  public
   def decode(data)
     @buffer.extract(data).each { |line| yield LogStash::Event.new(MESSAGE_FIELD => @converter.convert(line)) }
-  end # def decode
+  end
 
-  public
   def flush(&block)
     remainder = @buffer.flush
     if !remainder.empty?
@@ -48,13 +45,8 @@ class LogStash::Codecs::Line < LogStash::Codecs::Base
     end
   end
 
-  public
   def encode(event)
-    if event.is_a? LogStash::Event and @format
-      @on_event.call(event, event.sprintf(@format) + @delimiter)
-    else
-      @on_event.call(event, event.to_s + @delimiter)
-    end
-  end # def encode
-
-end # class LogStash::Codecs::Plain
+    encoded = @format ? event.sprintf(@format) : event.to_s
+    @on_event.call(event, encoded + @delimiter)
+  end
+end
