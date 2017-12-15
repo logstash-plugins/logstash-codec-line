@@ -1,3 +1,6 @@
+## 3.0.7
+  - Reverted thread safety fix and instead fixed udp input codec per worker. See https://github.com/logstash-plugins/logstash-codec-line/pull/14
+
 ## 3.0.6
   - Fixed thread safety issue. See https://github.com/logstash-plugins/logstash-codec-line/pull/13
 
