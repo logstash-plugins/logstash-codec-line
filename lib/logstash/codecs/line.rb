@@ -32,6 +32,12 @@ class LogStash::Codecs::Line < LogStash::Codecs::Base
   # Change the delimiter that separates lines
   config :delimiter, :validate => :string, :default => "\n"
 
+  def initialize(*params)
+    super
+
+    @original_field = ecs_select[disabled: nil, v1: '[event][original]']
+  end
+
   MESSAGE_FIELD = "message".freeze
 
   def register
@@ -60,7 +66,10 @@ class LogStash::Codecs::Line < LogStash::Codecs::Base
   private
 
   def new_event_from_line(line)
-    event_factory.new_event(MESSAGE_FIELD => @converter.convert(line))
+    message = @converter.convert(line)
+    event = event_factory.new_event MESSAGE_FIELD => message
+    event.set @original_field, message.dup.freeze if @original_field
+    event
   end
 
 end
