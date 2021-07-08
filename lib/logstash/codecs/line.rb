@@ -2,12 +2,19 @@
 require "logstash/codecs/base"
 require "logstash/util/charset"
 
+require 'logstash/plugin_mixins/ecs_compatibility_support'
+require 'logstash/plugin_mixins/event_support/event_factory_adapter'
+
 # Line-oriented text data.
 #
 # Decoding behavior: Only whole line events will be emitted.
 #
 # Encoding behavior: Each event will be emitted with a trailing newline.
 class LogStash::Codecs::Line < LogStash::Codecs::Base
+
+  include LogStash::PluginMixins::ECSCompatibilitySupport(:disabled, :v1, :v8 => :v1)
+  include LogStash::PluginMixins::EventSupport::EventFactoryAdapter
+
   config_name "line"
 
   # Set the desired text format for encoding.
@@ -25,6 +32,12 @@ class LogStash::Codecs::Line < LogStash::Codecs::Base
   # Change the delimiter that separates lines
   config :delimiter, :validate => :string, :default => "\n"
 
+  def initialize(*params)
+    super
+
+    @original_field = ecs_select[disabled: nil, v1: '[event][original]']
+  end
+
   MESSAGE_FIELD = "message".freeze
 
   def register
@@ -35,13 +48,13 @@ class LogStash::Codecs::Line < LogStash::Codecs::Base
   end
 
   def decode(data)
-    @buffer.extract(data).each { |line| yield LogStash::Event.new(MESSAGE_FIELD => @converter.convert(line)) }
+    @buffer.extract(data).each { |line| yield new_event_from_line(line) }
   end
 
   def flush(&block)
     remainder = @buffer.flush
     if !remainder.empty?
-      block.call(LogStash::Event.new(MESSAGE_FIELD => @converter.convert(remainder)))
+      block.call new_event_from_line(remainder)
     end
   end
 
@@ -49,4 +62,14 @@ class LogStash::Codecs::Line < LogStash::Codecs::Base
     encoded = @format ? event.sprintf(@format) : event.to_s
     @on_event.call(event, encoded + @delimiter)
   end
+
+  private
+
+  def new_event_from_line(line)
+    message = @converter.convert(line)
+    event = event_factory.new_event MESSAGE_FIELD => message
+    event.set @original_field, message.dup.freeze if @original_field
+    event
+  end
+
 end

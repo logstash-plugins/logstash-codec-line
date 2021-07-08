@@ -4,8 +4,10 @@ require "logstash/devutils/rspec/spec_helper"
 require "insist"
 require "logstash/codecs/line"
 require "logstash/event"
+require 'logstash/plugin_mixins/ecs_compatibility_support/spec_helper'
 
-describe LogStash::Codecs::Line do
+describe LogStash::Codecs::Line, :ecs_compatibility_support do
+
   subject do
     next LogStash::Codecs::Line.new
   end
@@ -57,11 +59,30 @@ describe LogStash::Codecs::Line do
       insist { decoded } == true
     end
 
-    it "should return an event from a valid utf-8 string" do
-      subject.decode("München\n") do |e|
-        insist { e.is_a?(LogStash::Event) }
-        insist { e.get("message") } == "München"
+    ecs_compatibility_matrix(:disabled, :v1, :v8 => :v1) do |ecs_select|
+
+      before(:each) do
+        allow_any_instance_of(described_class).to receive(:ecs_compatibility).and_return(ecs_compatibility)
       end
+
+      let(:message) { "München" }
+      let(:line) { "#{message}\n" }
+
+      it "should return an event from a valid utf-8 string" do
+        subject.decode(line) do |e|
+          expect( e ).to be_a LogStash::Event
+          expect( e.get("message") ).to eql message
+          expect( e.get("message").encoding ).to eql Encoding.find('UTF-8')
+          expect( e.get("message").valid_encoding? ).to be true
+        end
+      end
+
+      it "sets event.original in ECS mode" do
+        subject.decode(line) do |event|
+          expect( event.get("[event][original]") ).to eql message
+        end
+      end if ecs_select.active_mode != :disabled
+
     end
 
     context "when using custom :delimiter" do

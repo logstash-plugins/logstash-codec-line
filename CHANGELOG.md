@@ -1,3 +1,6 @@
+## 3.1.0
+  - Feat: ECS + event_factory support [#18](https://github.com/logstash-plugins/logstash-codec-line/pull/18) 
+
 ## 3.0.8
   - Code cleanup. See https://github.com/logstash-plugins/logstash-codec-line/pull/15
 
