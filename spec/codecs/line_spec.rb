@@ -72,6 +72,8 @@ describe LogStash::Codecs::Line, :ecs_compatibility_support do
         subject.decode(line) do |e|
           expect( e ).to be_a LogStash::Event
           expect( e.get("message") ).to eql message
+          expect( e.get("message").encoding ).to eql Encoding.find('UTF-8')
+          expect( e.get("message").valid_encoding? ).to be true
         end
       end
 
