@@ -20,14 +20,20 @@ include::{include_path}/plugin_header.asciidoc[]
 
 ==== Description
 
-Line-oriented text data.
+Reads line-oriented text data.
 
-Decoding behavior: Only whole line events will be emitted.
+Decoding behavior:: Only whole line events are emitted.
 
-Encoding behavior: Each event will be emitted with a trailing newline.
+Encoding behavior:: Each event is emitted with a trailing newline.
+
+[id="plugins-{type}s-{plugin}-ecs"]
+==== Compatibility with the Elastic Common Schema (ECS)
+
+This plugin is compatible with the {ecs-ref}[Elastic Common Schema (ECS)]. 
+No additional configuration is required. 
 
 [id="plugins-{type}s-{plugin}-options"]
-==== Line Codec Configuration Options
+==== Line codec configuration options
 
 [cols="<,<,<",options="header",]
 |=======================================================================
