@@ -1,3 +1,6 @@
+## 3.1.1
+  - [DOC] Add ECS compatibility info [#19](https://github.com/logstash-plugins/logstash-codec-line/pull/19) 
+
 ## 3.1.0
   - Feat: ECS + event_factory support [#18](https://github.com/logstash-plugins/logstash-codec-line/pull/18) 
 
