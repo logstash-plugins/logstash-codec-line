@@ -1,6 +1,6 @@
 # Logstash Plugin
 
-[![Travis Build Status](https://travis-ci.com/logstash-plugins/logstash-codec-line.svg)](https://travis-ci.com/logstash-plugins/logstash-codec-line)
+[![Unit Tests](https://github.com/logstash-plugins/logstash-codec-line/actions/workflows/unit-tests.yml/badge.svg?branch=main)](https://github.com/logstash-plugins/logstash-codec-line/actions/workflows/unit-tests.yml)
 
 This is a plugin for [Logstash](https://github.com/elastic/logstash).
 
